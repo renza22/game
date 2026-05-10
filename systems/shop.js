@@ -186,6 +186,7 @@ export function installShopMethods(G, deps) {
     if(this.gold<price||this.unlockedWeapons[idx]) return;
     this.gold-=price;
     this.unlockedWeapons[idx]=true;
+    if(this.playShopBuySound) this.playShopBuySound();
     spawnParts(this.P.x,this.P.y,'#ffd700',8,'-'+price+'G');
     this.updateWeaponBar();
     this.updateHUD();
@@ -212,6 +213,7 @@ export function installShopMethods(G, deps) {
     if(this.ownedSkills.indexOf(id)>=0) return;
     this.gold-=price;
     this.ownedSkills.push(id);
+    if(this.playShopBuySound) this.playShopBuySound();
     if(!this.activeSkill){
       this.activeSkill=id;
       this.skillCd=0;
@@ -249,6 +251,7 @@ export function installShopMethods(G, deps) {
     if(this.gold<price) return;
     this.gold-=price;
     this.upgradeLevels[id]=curLvl+1;
+    if(this.playShopBuySound) this.playShopBuySound();
     var self=this;
     var UPGR_MAP={
       'hp':   function(){self.P.maxHp+=30;self.P.hp=Math.min(self.P.maxHp,self.P.hp+15);},

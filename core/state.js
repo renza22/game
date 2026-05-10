@@ -24,6 +24,7 @@ export function installStateMethods(G, deps) {
       this.adminGiftAudio.pause();
       this.adminGiftAudio.currentTime=0;
     }
+    if(this.stopPlayerWalkSound) this.stopPlayerWalkSound();
     this.P={
       x:0,y:0,r:13,
       hp:100,maxHp:100,mp:60,maxMp:60,
@@ -173,12 +174,17 @@ export function installStateMethods(G, deps) {
     return;
   };
   G.update = function(){
-    if(this.state==='over'||this.state==='win') return;
+    if(this.state==='over'||this.state==='win'){
+      if(this.stopPlayerWalkSound) this.stopPlayerWalkSound();
+      return;
+    }
     if(this.state==='adminSurprise'){
+      if(this.stopPlayerWalkSound) this.stopPlayerWalkSound();
       this.adminSurpriseTick=(this.adminSurpriseTick||0)+1;
       return;
     }
     if(this.state==='adminRevive'){
+      if(this.stopPlayerWalkSound) this.stopPlayerWalkSound();
       this.tick++;
       if(this.adminReviveTimer>0) this.adminReviveTimer--;
       if(this.P){
@@ -203,6 +209,7 @@ export function installStateMethods(G, deps) {
       return;
     }
     if(this.state==='transition'){
+      if(this.stopPlayerWalkSound) this.stopPlayerWalkSound();
       // Pause transition timer while shop is open
       if(this._shopOpen) return;
       this.transTimer--;
@@ -229,6 +236,7 @@ export function installStateMethods(G, deps) {
     if(keys['w']||keys['W']||keys['ArrowUp'])my-=1;
     if(keys['s']||keys['S']||keys['ArrowDown'])my+=1;
     if(mx&&my){mx*=0.707;my*=0.707;}
+    if(this.syncPlayerWalkSound) this.syncPlayerWalkSound(!!(mx||my));
 
     var onIce=this.checkIce(p);
     if(onIce){p.iceTimer=20;}else{if(p.iceTimer>0)p.iceTimer--;}

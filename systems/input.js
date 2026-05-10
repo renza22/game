@@ -1,10 +1,19 @@
 export function bindInput(G, deps){
   const { cv, VW, VH, keys, mouse, cam } = deps;
+  function isMoveKey(key){
+    return key==='a'||key==='A'||key==='d'||key==='D'||key==='w'||key==='W'||key==='s'||key==='S'
+      ||key==='ArrowLeft'||key==='ArrowRight'||key==='ArrowUp'||key==='ArrowDown';
+  }
+  function anyMoveKeyDown(){
+    return keys['a']||keys['A']||keys['d']||keys['D']||keys['w']||keys['W']||keys['s']||keys['S']
+      ||keys['ArrowLeft']||keys['ArrowRight']||keys['ArrowUp']||keys['ArrowDown'];
+  }
 
   document.addEventListener('keydown', function(e){
     if(G.unlockSniperShotSound) G.unlockSniperShotSound();
     if(G.unlockPistolShotSound) G.unlockPistolShotSound();
     if(G.unlockMonsterDeathSound) G.unlockMonsterDeathSound();
+    if(G.unlockPlayerWalkSound) G.unlockPlayerWalkSound();
     keys[e.key] = true;
     if(e.key===' ' || e.code==='Space'){
       G.useSkill();
@@ -12,10 +21,19 @@ export function bindInput(G, deps){
     }
     if(e.key>='1'&&e.key<='6'){G.selWeapon(parseInt(e.key)-1);}
     if(e.key==='f'||e.key==='F'){G.usePotion();}
+    if(isMoveKey(e.key) && G.state==='play' && G.playPlayerWalkSound) G.playPlayerWalkSound();
     // Tombol B dihapus ? toko hanya terbuka otomatis setelah lantai selesai
     if(['ArrowUp','ArrowDown','ArrowLeft','ArrowRight',' '].indexOf(e.key)>=0) e.preventDefault();
   });
-  document.addEventListener('keyup', function(e){ keys[e.key]=false; });
+  document.addEventListener('keyup', function(e){
+    keys[e.key]=false;
+    if(isMoveKey(e.key) && !anyMoveKeyDown() && G.stopPlayerWalkSound) G.stopPlayerWalkSound();
+  });
+  window.addEventListener('blur', function(){
+    keys['a']=keys['A']=keys['d']=keys['D']=keys['w']=keys['W']=keys['s']=keys['S']=false;
+    keys['ArrowLeft']=keys['ArrowRight']=keys['ArrowUp']=keys['ArrowDown']=false;
+    if(G.stopPlayerWalkSound) G.stopPlayerWalkSound();
+  });
   cv.addEventListener('mousemove', function(e){
     var r=cv.getBoundingClientRect();
     mouse.x=(e.clientX-r.left)*(VW/r.width);
@@ -26,6 +44,7 @@ export function bindInput(G, deps){
     if(G.unlockSniperShotSound) G.unlockSniperShotSound();
     if(G.unlockPistolShotSound) G.unlockPistolShotSound();
     if(G.unlockMonsterDeathSound) G.unlockMonsterDeathSound();
+    if(G.unlockPlayerWalkSound) G.unlockPlayerWalkSound();
     mouse.down=true;
     if(G.state==='over'||G.state==='win'){G.init();return;}
     G.doAttack();

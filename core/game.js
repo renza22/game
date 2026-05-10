@@ -1,4 +1,4 @@
-import { VW, VH, MW, MH, WALL, TS, ADMIN_GIFT_MUSIC_SRC, SNIPER_SHOT_SOUND_SRC, PISTOL_SHOT_SOUND_SRC, MONSTER_DEATH_SOUND_SRC } from '../data/constants.js';
+import { VW, VH, MW, MH, WALL, TS, ADMIN_GIFT_MUSIC_SRC, SNIPER_SHOT_SOUND_SRC, PISTOL_SHOT_SOUND_SRC, MONSTER_DEATH_SOUND_SRC, PLAYER_WALK_SOUND_SRC, SHOP_TAB_SOUND_SRC, SHOP_BUY_SOUND_SRC } from '../data/constants.js';
 import { WEAPONS } from '../data/weapons.js';
 import { THEMES } from '../data/themes.js';
 import { FLOORS } from '../data/floors.js';
@@ -50,7 +50,7 @@ const spawnParts = createSpawnParts(G);
 
 const deps = {
   ctx, cv, VW, VH, MW, MH, WALL, TS,
-  ADMIN_GIFT_MUSIC_SRC, SNIPER_SHOT_SOUND_SRC, PISTOL_SHOT_SOUND_SRC, MONSTER_DEATH_SOUND_SRC,
+  ADMIN_GIFT_MUSIC_SRC, SNIPER_SHOT_SOUND_SRC, PISTOL_SHOT_SOUND_SRC, MONSTER_DEATH_SOUND_SRC, PLAYER_WALK_SOUND_SRC, SHOP_TAB_SOUND_SRC, SHOP_BUY_SOUND_SRC,
   WEAPONS, THEMES, FLOORS, ET,
   keys, mouse, cam, camUpdate, wx, wy, inView,
   circleRect, resolveCircleRect,
@@ -84,6 +84,7 @@ bindInput(G, deps);
 // Expose G and shopTab globally so inline onclick handlers keep working.
 window.G = G;
 window.shopTab = function(tab){
+  if(G.playShopTabSound) G.playShopTabSound();
   ['weapons','items','upgrades'].forEach(function(t){
     document.getElementById('tab-'+t+'-content').style.display=(t===tab?'block':'none');
     document.getElementById('tab-'+t).classList.toggle('shop-tab-active',t===tab);

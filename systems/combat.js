@@ -1,10 +1,10 @@
 const bindDeps = (deps) => {
-  const { ctx, cv, VW, VH, MW, MH, WALL, TS, ADMIN_GIFT_MUSIC_SRC, SNIPER_SHOT_SOUND_SRC, PISTOL_SHOT_SOUND_SRC, MONSTER_DEATH_SOUND_SRC, WEAPONS, THEMES, FLOORS, ET, keys, mouse, cam, camUpdate, wx, wy, inView, circleRect, resolveCircleRect, resolveWalls, isBlocked, spawnParts } = deps;
-  return { ctx, cv, VW, VH, MW, MH, WALL, TS, ADMIN_GIFT_MUSIC_SRC, SNIPER_SHOT_SOUND_SRC, PISTOL_SHOT_SOUND_SRC, MONSTER_DEATH_SOUND_SRC, WEAPONS, THEMES, FLOORS, ET, keys, mouse, cam, camUpdate, wx, wy, inView, circleRect, resolveCircleRect, resolveWalls, isBlocked, spawnParts };
+  const { ctx, cv, VW, VH, MW, MH, WALL, TS, ADMIN_GIFT_MUSIC_SRC, SNIPER_SHOT_SOUND_SRC, PISTOL_SHOT_SOUND_SRC, MONSTER_DEATH_SOUND_SRC, PLAYER_WALK_SOUND_SRC, SHOP_TAB_SOUND_SRC, SHOP_BUY_SOUND_SRC, WEAPONS, THEMES, FLOORS, ET, keys, mouse, cam, camUpdate, wx, wy, inView, circleRect, resolveCircleRect, resolveWalls, isBlocked, spawnParts } = deps;
+  return { ctx, cv, VW, VH, MW, MH, WALL, TS, ADMIN_GIFT_MUSIC_SRC, SNIPER_SHOT_SOUND_SRC, PISTOL_SHOT_SOUND_SRC, MONSTER_DEATH_SOUND_SRC, PLAYER_WALK_SOUND_SRC, SHOP_TAB_SOUND_SRC, SHOP_BUY_SOUND_SRC, WEAPONS, THEMES, FLOORS, ET, keys, mouse, cam, camUpdate, wx, wy, inView, circleRect, resolveCircleRect, resolveWalls, isBlocked, spawnParts };
 };
 
 export function installCombatMethods(G, deps) {
-  const { ctx, cv, VW, VH, MW, MH, WALL, TS, ADMIN_GIFT_MUSIC_SRC, SNIPER_SHOT_SOUND_SRC, PISTOL_SHOT_SOUND_SRC, MONSTER_DEATH_SOUND_SRC, WEAPONS, THEMES, FLOORS, ET, keys, mouse, cam, camUpdate, wx, wy, inView, circleRect, resolveCircleRect, resolveWalls, isBlocked, spawnParts } = bindDeps(deps);
+  const { ctx, cv, VW, VH, MW, MH, WALL, TS, ADMIN_GIFT_MUSIC_SRC, SNIPER_SHOT_SOUND_SRC, PISTOL_SHOT_SOUND_SRC, MONSTER_DEATH_SOUND_SRC, PLAYER_WALK_SOUND_SRC, SHOP_TAB_SOUND_SRC, SHOP_BUY_SOUND_SRC, WEAPONS, THEMES, FLOORS, ET, keys, mouse, cam, camUpdate, wx, wy, inView, circleRect, resolveCircleRect, resolveWalls, isBlocked, spawnParts } = bindDeps(deps);
   G.tryRevive = function(){
     var p=this.P;
     if(p.lives>0){
@@ -42,8 +42,8 @@ export function installCombatMethods(G, deps) {
   };
   G.getAdminSurpriseMessages = function(){
     return [
-      'SELAMAT SUDAH MENCAPAI LANTAI 10',
-      'Karena sudah sampai sejauh ini, kamu berhak mendapat hadiah dari admin.',
+      'SAYANG SEKALI NYAWAMU SUDAH HABIS',
+      'KARENA SUDAH SAMPAI SEJAUH INI, KAMU BERHAK MENDAPAT HADIAN DARI ADMIN',
       'BANGKITLAH DAN HABISI BIJI KORUPTOR ITU',
     ];
   };
@@ -212,6 +212,96 @@ export function installCombatMethods(G, deps) {
     var base=this.getMonsterDeathAudio();
     var audio=base.cloneNode(true);
     audio.volume=0.9;
+    audio.currentTime=0;
+    var playResult=audio.play();
+    if(playResult && playResult.catch) playResult.catch(function(){});
+  };
+  G.getPlayerWalkAudio = function(){
+    if(!this.playerWalkAudio){
+      this.playerWalkAudio=new Audio(PLAYER_WALK_SOUND_SRC);
+      this.playerWalkAudio.preload='auto';
+      this.playerWalkAudio.loop=true;
+      this.playerWalkAudio.volume=0.75;
+      this.playerWalkAudio.load();
+    }
+    return this.playerWalkAudio;
+  };
+  G.unlockPlayerWalkSound = function(){
+    if(this.playerWalkSoundUnlocked) return;
+    this.getPlayerWalkAudio();
+    this.playerWalkSoundUnlocked=true;
+  };
+  G.playPlayerWalkSound = function(){
+    var audio=this.getPlayerWalkAudio();
+    this.playerWalkSoundWanted=true;
+    if(this.playerWalkSoundPlaying || this.playerWalkSoundStarting) return;
+    this.playerWalkSoundStarting=true;
+    audio.muted=false;
+    audio.loop=true;
+    audio.volume=0.75;
+    var playResult=audio.play();
+    var self=this;
+    if(playResult && playResult.then){
+      playResult.then(function(){
+        self.playerWalkSoundStarting=false;
+        if(self.playerWalkSoundWanted){
+          self.playerWalkSoundPlaying=true;
+        } else {
+          audio.pause();
+          audio.currentTime=0;
+          self.playerWalkSoundPlaying=false;
+        }
+      }).catch(function(){
+        self.playerWalkSoundStarting=false;
+        self.playerWalkSoundPlaying=false;
+      });
+    } else {
+      this.playerWalkSoundStarting=false;
+      this.playerWalkSoundPlaying=true;
+    }
+  };
+  G.stopPlayerWalkSound = function(){
+    this.playerWalkSoundWanted=false;
+    this.playerWalkSoundStarting=false;
+    if(!this.playerWalkAudio) return;
+    this.playerWalkAudio.pause();
+    this.playerWalkAudio.currentTime=0;
+    this.playerWalkSoundPlaying=false;
+  };
+  G.syncPlayerWalkSound = function(moving){
+    if(moving) this.playPlayerWalkSound();
+    else this.stopPlayerWalkSound();
+  };
+  G.getShopTabAudio = function(){
+    if(!this.shopTabAudioBase){
+      this.shopTabAudioBase=new Audio(SHOP_TAB_SOUND_SRC);
+      this.shopTabAudioBase.preload='auto';
+      this.shopTabAudioBase.volume=0.8;
+      this.shopTabAudioBase.load();
+    }
+    return this.shopTabAudioBase;
+  };
+  G.playShopTabSound = function(){
+    var base=this.getShopTabAudio();
+    var audio=base.cloneNode(true);
+    audio.volume=0.8;
+    audio.currentTime=0;
+    var playResult=audio.play();
+    if(playResult && playResult.catch) playResult.catch(function(){});
+  };
+  G.getShopBuyAudio = function(){
+    if(!this.shopBuyAudioBase){
+      this.shopBuyAudioBase=new Audio(SHOP_BUY_SOUND_SRC);
+      this.shopBuyAudioBase.preload='auto';
+      this.shopBuyAudioBase.volume=0.85;
+      this.shopBuyAudioBase.load();
+    }
+    return this.shopBuyAudioBase;
+  };
+  G.playShopBuySound = function(){
+    var base=this.getShopBuyAudio();
+    var audio=base.cloneNode(true);
+    audio.volume=0.85;
     audio.currentTime=0;
     var playResult=audio.play();
     if(playResult && playResult.catch) playResult.catch(function(){});

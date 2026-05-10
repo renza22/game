@@ -48,53 +48,57 @@ export const FLOORS = [
    portals:[[240,240,1400,240],[240,920,1400,920],[760,145,760,1010]],
    enemyCount:14, enemyTypes:[2,3,4,5,7,8]},
   // 7 – Sarang Laba-laba  (world 1800×1400, WALL=40)
-  // Layout: 3 ruang besar di kiri/tengah/kanan dihubungkan lorong horizontal & vertikal
-  // Semua lorong lebar >=160px agar player & musuh leluasa
+  // Layout jaring terbuka: tetap ada tembok, tetapi tidak ada ruang kotak tertutup
+  // yang bisa mengurung monster atau menghalangi player menyerang dari luar.
   {spawn:{x:200,y:700},stair:{x:1600,y:700},
    walls:[
-     // ── Ruang kiri atas (x80–520, y80–480) ──
-     [80,80,440,40],   // atap
-     [80,80,40,400],   // kiri
-     [480,80,40,200],  // kanan atas — buka celah bawah ke lorong
-     [80,480,200,40],  // lantai kiri — buka celah kanan ke lorong tengah
-     // ── Ruang kiri bawah (x80–520, y880–1320) ──
-     [80,880,440,40],  // atap — buka celah ke lorong tengah vertikal
-     [80,920,40,400],  // kiri
-     [480,920,40,400], // kanan
-     [80,1320,440,40], // lantai
-     // ── Ruang tengah (x640–1160, y300–1100) ──
-     [640,300,520,40], // atap
-     [640,340,40,380], // kiri atas — buka celah bawah ke jalur lintas
-     [640,880,40,220], // kiri bawah
-     [1160,340,40,380],// kanan atas
-     [1160,880,40,220],// kanan bawah
-     [640,1100,520,40],// lantai
-     // ── Ruang kanan atas (x1280–1720, y80–480) ──
-     [1280,80,440,40], // atap
-     [1680,80,40,400], // kanan
-     [1280,80,40,200], // kiri atas — buka celah bawah
-     [1480,480,200,40],// lantai kanan — buka celah kiri
-     // ── Ruang kanan bawah (x1280–1720, y880–1320) ──
-     [1280,880,440,40],// atap
-     [1680,920,40,400],// kanan
-     [1280,920,40,400],// kiri
-     [1280,1320,440,40],// lantai
-     // ── Pilar dekoratif di lorong tengah ──
-     [860,540,80,80],  // pilar tengah atas
-     [860,780,80,80],  // pilar tengah bawah
+     // Jalur utama spawn -> tangga sengaja tetap kosong di sekitar y=700.
+     [300,180,300,40],
+     [760,180,280,40],
+     [1200,180,300,40],
+     [220,380,220,40],
+     [620,380,240,40],
+     [1080,380,240,40],
+     [1420,380,180,40],
+
+     [380,260,40,300],
+     [700,260,40,220],
+     [1040,260,40,220],
+     [1360,260,40,300],
+
+     [500,560,240,40],
+     [1060,560,240,40],
+     [760,520,40,140],
+     [1000,740,40,140],
+     [520,800,220,40],
+     [1060,800,220,40],
+
+     [380,860,40,260],
+     [700,920,40,220],
+     [1040,920,40,220],
+     [1360,860,40,260],
+
+     [220,1040,220,40],
+     [620,1040,240,40],
+     [1080,1040,240,40],
+     [1420,1040,180,40],
+     [300,1220,300,40],
+     [760,1220,280,40],
+     [1200,1220,300,40],
    ],
    traps:[
-     [300,300],[300,1100],          // jebakan ruang kiri
-     [900,450],[900,950],           // jebakan ruang tengah
-     [1480,300],[1480,1100],        // jebakan ruang kanan
-     [580,700],[1220,700],          // jebakan lorong horizontal
+     [340,300],[340,1100],
+     [620,500],[620,900],
+     [900,360],[900,1040],
+     [1180,500],[1180,900],
+     [1460,300],[1460,1100],
    ],
    mines:[
-     [200,400],[200,1000],
-     [870,620],[870,820],
-     [1600,400],[1600,1000],
+     [260,700],[540,700],
+     [820,620],[980,780],
+     [1260,700],[1540,700],
    ],
-   ice:[[640,720,520,80]],   // es di lorong tengah horizontal
+   ice:[[620,660,560,120],[760,300,280,90],[760,1010,280,90]],
    portals:[[300,700,1500,700],[900,150,900,1250]],
    enemyCount:15, enemyTypes:[2,3,4,5,7,8,10]},
   // 8 – Candi Terlarang
